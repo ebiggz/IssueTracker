@@ -1,0 +1,12 @@
+name: IssueTracker
+version: 0.1
+main: com.mythicacraft.IssueTracker.cIssueTracker
+commands:
+    issue:
+        usage: /issue
+permissions: 
+    issuetracker.issue:
+        description: Allows players to create, close, and check issue status
+    issuetracker.admin:
+        description: Allows admins to check all issues and set the status of each
+        default: op
