@@ -49,31 +49,8 @@ public class IssueCommand implements CommandExecutor{
 				}
 			}
 			//When a player types '/issue status' do...
-			else if(args[0].equalsIgnoreCase("status") && args.length == 1){
-				int counter = 0;
-				if(sender.hasPermission("issuetracker.admin")){
-					try {				
-						//Calling the SELECT query for status
-						sqlExec.adminStatusQuery();
-						//Pulls each row of the database. Displays each row
-						sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "All Open/Reviewed Statuses" + ChatColor.BLUE + "*******");
-						while (sqlExec.selectSQL.next()) {
-							int tempstatus = sqlExec.selectSQL.getInt("status");
-							if (tempstatus == 2){
-								status = "Reviewed";
-							}
-							 sender.sendMessage(ChatColor.BLUE + "> Issue #" + sqlExec.selectSQL.getString("issue_ID") + ": " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason") + ChatColor.BLUE + "\n     " + ChatColor.DARK_GRAY + "Player: " + ChatColor.GRAY + sqlExec.selectSQL.getString("player") + ChatColor.DARK_GRAY + " - Status: " + ChatColor.GRAY + status);
-					         status = "Open";
-						}
-						//Close database connection
-							sqlExec.dbClose();
-						} 	
-					catch (SQLException e) {
-						e.printStackTrace();
-						}
-					counter = 1;
-				}					
-				else if(counter != 1){
+			else if(args[0].equalsIgnoreCase("status")){
+				if (args.length == 1 && !sender.hasPermission("issuetracker.admin")){
 					try {				
 						//Calling the SELECT query for status
 						sqlExec.statusQuery();
@@ -86,144 +63,162 @@ public class IssueCommand implements CommandExecutor{
 							sender.sendMessage(ChatColor.BLUE + "Issue ID: " + ChatColor.GOLD + sqlExec.selectSQL.getString("issue_id") + ChatColor.BLUE + " - Status: " + ChatColor.GOLD + status + ChatColor.BLUE + " - " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
 							status = "Open";
 							}
-					
 						//Close database connection
-							sqlExec.dbClose();
+						sqlExec.dbClose();
 						} 	
 					catch (SQLException e) {
 						e.printStackTrace();
 						}
 					}
-			}
-			//Triggers when /issue create [arg] is typed
-			else if(args[0].equalsIgnoreCase("create") && args.length >= 2){
-				for(int i = 1; i < args.length; i++){
-					issueReason += " " + args[i];
-				}
-				issueReason = issueReason.substring(1);
-				try {
-					sqlExec.createQuery();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				sender.sendMessage(ChatColor.GREEN + "Your issue has successfully been submitted. A moderator will review it as soon as possible. You may type '/issue status' to view the status of your issues.");
-				issueReason = "";
-				}
-			//Triggers when /issue close is typed
-			else if(args[0].equalsIgnoreCase("close") && args.length == 2){
-				try {
-				closeIssueID = args[1];
-				sqlExec.closeQuery();
-				sender.sendMessage(ChatColor.GREEN + "You have successfully closed your issue!");
-				}
-				catch (Exception e) {
-					sender.sendMessage(ChatColor.RED + "You must enter a valid issue ID. Type '/issue status' to view your issues.");
-				}
-			}
-			
-			//Admin set status
-			else if(args[0].equalsIgnoreCase("status") && args[2].equalsIgnoreCase("close") || args[2].equalsIgnoreCase("closed") || args[2].equalsIgnoreCase("reviewed") && args.length == 3){
-				if(sender.hasPermission("issuetracker.admin")){
-				closeIssueID = args[1];
-				//if '/issue status # close' is typed
-					if(args[2].equalsIgnoreCase("close") | args[2].equalsIgnoreCase("closed")){
-						setStatus = "3";
-						try {
-							sqlExec.adminSetQuery();
-							sender.sendMessage(ChatColor.GREEN + "Issue is now set as 'closed'.");
-						} catch (SQLException e) {
-							sender.sendMessage(ChatColor.GOLD + sqlExec.errorString);
-						}
-						}
-					//if '/issue status # reviewed' is typed
-					else if (args[2].equalsIgnoreCase("reviewed")){
-						setStatus = "2";
-						try {
-							sqlExec.adminSetQuery();
-							sender.sendMessage(ChatColor.GREEN + "Issue is now set as 'reviewed'.");
-						} catch (SQLException e) {
-							sender.sendMessage(ChatColor.GOLD + sqlExec.errorString);
-						}
-						}
-					else {
-						//if the format was wrong
-						sender.sendMessage(ChatColor.GOLD + "Please enter an appropriate issue status. (Close or Reviewed");
-						}
-					
-			} //close if permission issuetracker.admin
-				
-				else{
-					//If player does not have permission issuetracker.admin
-					sender.sendMessage(ChatColor.GOLD + "You do not have permissions to use this command!");
-				}
-			} //close if admin types /issue status # <param>
-			
-			
-			//When a player types '/issue view closed' do...
-			else if(args[0].equalsIgnoreCase("view")){
-				int counter = 0;
-				if(sender.hasPermission("issuetracker.admin")){
-					if (args.length == 3 && args[1].equalsIgnoreCase("close") || args[1].equalsIgnoreCase("closed")){
+				if (sender.hasPermission("issuetracker.admin")){
+					if(args.length == 1){
 						try {				
-							closePlayer = args[2];
 							//Calling the SELECT query for status
-							sqlExec.adminCloseQuery();
+							sqlExec.adminStatusQuery();
 							//Pulls each row of the database. Displays each row
-							sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "Closed tickets for: " + closePlayer + ChatColor.BLUE + "*******");
+							sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "All Open/Reviewed Statuses" + ChatColor.BLUE + "*******");
 							while (sqlExec.selectSQL.next()) {
-								 sender.sendMessage(ChatColor.BLUE + "> Issue #" + sqlExec.selectSQL.getString("issue_ID") + ": " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
+								int tempstatus = sqlExec.selectSQL.getInt("status");
+								if (tempstatus == 2){
+									status = "Reviewed";
 								}
+								 sender.sendMessage(ChatColor.BLUE + "> Issue #" + sqlExec.selectSQL.getString("issue_ID") + ": " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason") + ChatColor.BLUE + "\n     " + ChatColor.DARK_GRAY + "Player: " + ChatColor.GRAY + sqlExec.selectSQL.getString("player") + ChatColor.DARK_GRAY + " - Status: " + ChatColor.GRAY + status);
+						         status = "Open";
+							}
+							//Close database connection
 							sqlExec.dbClose();
 							} 	
 						catch (SQLException e) {
-							sender.sendMessage("No closed issues found for player " + closePlayer);
+							e.printStackTrace();
 							}
-						counter = 1;
-					} //if args 1 = close/closed
-					else if(args.length == 2){
-						sender.sendMessage("You must enter a valid players name: /issue view closed <player>");
+						}
+					else if(args[0].equalsIgnoreCase("status") && args[2].equalsIgnoreCase("close") || args[2].equalsIgnoreCase("closed") || args[2].equalsIgnoreCase("reviewed") && args.length == 3){
+						closeIssueID = args[1];
+						//if '/issue status # close' is typed
+							if(args[2].equalsIgnoreCase("close") | args[2].equalsIgnoreCase("closed")){
+								setStatus = "3";
+								try {
+									sqlExec.adminSetQuery();
+									sender.sendMessage(ChatColor.GREEN + "Issue is now set as 'closed'.");
+								} 
+								catch (SQLException e) {
+									sender.sendMessage(ChatColor.GOLD + sqlExec.errorString);
+									}
+								}
+							//if '/issue status # reviewed' is typed
+							else if (args[2].equalsIgnoreCase("reviewed")){
+								setStatus = "2";
+								try {
+									sqlExec.adminSetQuery();
+									sender.sendMessage(ChatColor.GREEN + "Issue is now set as 'reviewed'.");
+								} 
+								catch (SQLException e) {
+									sender.sendMessage(ChatColor.GOLD + sqlExec.errorString);
+									}
+								}
+							else {
+								//if the format was wrong
+								sender.sendMessage(ChatColor.RED + "Please enter an appropriate issue status. (Close or Reviewed");
+								}
+					} //Close if status # close/reviewed is typed
+						else{
+							//If player does not have permission issuetracker.admin
+							sender.sendMessage(ChatColor.RED + "You do not have permissions to use this command!");
+						}
+					} //close hasPermission("issuetracker.admin")
+				} //Close if args[0].equalsIgnoreCase("status")
+			}
+			//Triggers when /issue create args[x] is typed
+			else if(args[0].equalsIgnoreCase("create")){
+				 if(args.length >= 2){
+					for(int i = 1; i < args.length; i++){
+						issueReason += " " + args[i];
 					}
-					else {
-						sender.sendMessage("Type /issue for available commands.");
-					}
-				}					
-
-				else if(args[1].equalsIgnoreCase("closed") && args.length == 2 && counter != 1){
-					try {				
-						//Calling the SELECT query for status
-						sqlExec.viewCloseQuery();
-						//Pulls each row of the database. Displays each row
-						sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "Your closed tickets" + ChatColor.BLUE + "*******");
-						while (sqlExec.selectSQL.next()) {
-							sender.sendMessage(ChatColor.BLUE + "Issue ID: " + ChatColor.GOLD + sqlExec.selectSQL.getString("issue_id") + ChatColor.BLUE + " - Status: " + ChatColor.GOLD + status + ChatColor.BLUE + " - " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
-							}
-						//Close database connection
-							sqlExec.dbClose();
-						} 	
+					issueReason = issueReason.substring(1);
+					try {
+						sqlExec.createQuery();
+						} 
 					catch (SQLException e) {
 						e.printStackTrace();
 						}
+					sender.sendMessage(ChatColor.GREEN + "Your issue has successfully been submitted. A moderator will review it as soon as possible. You may type '/issue status' to view the status of your issues.");
+					issueReason = "";
+				 	}
+				 else {
+					 sender.sendMessage(ChatColor.RED + "Please type '/issue create <message>' to submit an issue.");
+				 }
+				}
+			//Triggers when /issue close is typed
+			else if(args[0].equalsIgnoreCase("close")){
+				if(args.length == 2){
+					try {
+					closeIssueID = args[1];
+					sqlExec.closeQuery();
+					sender.sendMessage(ChatColor.GREEN + "You have successfully closed your issue!");
 					}
+					catch (Exception e) {
+						sender.sendMessage(ChatColor.RED + "You must enter a valid issue ID. Type '/issue status' to view your issues.");
+					}
+				}
 				else {
-					sender.sendMessage("Please type '/issue' for available commands.");
+					sender.sendMessage(ChatColor.RED + "Please type '/issue close <issue_ID>' to close an issue.");
 				}
 			}
-			
+			//When a player types '/issue view closed' do...
+			else if(args[0].equalsIgnoreCase("view")){
+				if(args.length == 2 && !sender.hasPermission("issuetracker.admin")){
+					if(args[1].equalsIgnoreCase("closed")){
+						try {				
+							//Calling the SELECT query for status
+							sqlExec.viewCloseQuery();
+							//Pulls each row of the database. Displays each row
+							sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "Your closed tickets" + ChatColor.BLUE + "*******");
+							while (sqlExec.selectSQL.next()) {
+								sender.sendMessage(ChatColor.BLUE + "Issue ID: " + ChatColor.GOLD + sqlExec.selectSQL.getString("issue_id") + ChatColor.BLUE + " - Status: " + ChatColor.GOLD + status + ChatColor.BLUE + " - " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
+								}
+							//Close database connection
+								sqlExec.dbClose();
+							} 	
+						catch (SQLException e) {
+							e.printStackTrace();
+							}
+						}
+					else {
+						sender.sendMessage(ChatColor.RED + "Please type '/issue view closed' to view your closed issues");
+					}
+				}
+				if(sender.hasPermission("issuetracker.admin")){
+					if(args.length == 3){
+						if (args[1].equalsIgnoreCase("close") || args[1].equalsIgnoreCase("closed")){
+							try {				
+								closePlayer = args[2];
+								//Calling the SELECT query for status
+								sqlExec.adminCloseQuery();
+								//Pulls each row of the database. Displays each row
+								sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "Closed tickets for: " + closePlayer + ChatColor.BLUE + "*******");
+								while (sqlExec.selectSQL.next()) {
+									 sender.sendMessage(ChatColor.BLUE + "> Issue #" + sqlExec.selectSQL.getString("issue_ID") + ": " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
+									}
+								sqlExec.dbClose();
+								} 	
+							catch (SQLException e) {
+								sender.sendMessage("No closed issues found for player " + closePlayer);
+								}
+						} //if args 1 = close/closed
+						else {
+							sender.sendMessage(ChatColor.RED + "You must enter a valid players name: /issue view closed <player>");
+						}
+					}
+				}
+				else {
+					sender.sendMessage(ChatColor.RED + "You do not have permissions to use this!");
+				}
+			}
 			//If none of the triggers are hit - tell them how to view correct syntax
 			else {
 				sender.sendMessage("Please type /issue for help.");
+				}
 			}
-		
-			
-		
-			
-			} //close if commandlabel = "issue" 
-		} //close if permission issuetracker.issue
-		else {
-			//If player does not have issuetracker.issue
-			sender.sendMessage(ChatColor.GOLD + "You do not have permissions to use this command!");
-		}
 		return true;
-	}
-	
+		}
 	}
