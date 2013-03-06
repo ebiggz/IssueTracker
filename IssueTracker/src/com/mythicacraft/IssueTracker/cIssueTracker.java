@@ -4,7 +4,6 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 

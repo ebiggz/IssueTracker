@@ -9,9 +9,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-
 import com.mythicacraft.IssueTracker.cIssueTracker;
 
 public class SQLExecutors {
@@ -95,9 +92,21 @@ public class SQLExecutors {
 		sampleQueryStatement = conn.prepareStatement("SELECT * FROM itrack_issuetracker WHERE status !=  '3'"); //Put your query in the quotes
 		ResultSet sqlSelect = sampleQueryStatement.executeQuery(); //Executes the query
 		selectSQL = sqlSelect;
-
 	}
 	
+	public void adminCloseQuery() throws SQLException { 
+		dbConnect();
+		sampleQueryStatement = conn.prepareStatement("SELECT * FROM itrack_issuetracker WHERE status = '3' AND player = '" + IssueCommand.closePlayer + "'"); //Put your query in the quotes
+		ResultSet sqlSelect = sampleQueryStatement.executeQuery(); //Executes the query
+		selectSQL = sqlSelect;
+	}
+	
+	public void viewCloseQuery() throws SQLException { 
+		dbConnect();
+		sampleQueryStatement = conn.prepareStatement("SELECT * FROM itrack_issuetracker WHERE status = '3' AND player = '" + IssueCommand.senderName + "'"); //Put your query in the quotes
+		ResultSet sqlSelect = sampleQueryStatement.executeQuery(); //Executes the query
+		selectSQL = sqlSelect;
+	}
 	
 	//Called onEnable - checks if database exists, if not - creates database
 	public void CreateTable() throws SQLException { 
