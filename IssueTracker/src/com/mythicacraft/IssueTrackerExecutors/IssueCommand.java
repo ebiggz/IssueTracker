@@ -7,13 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 
 import com.mythicacraft.IssueTracker.cIssueTracker;
 
 public class IssueCommand implements CommandExecutor{
 
-	@SuppressWarnings("unused")
 	private cIssueTracker plugin;
 	public static String issueReason = "";
 	public static String senderName;
@@ -55,6 +55,10 @@ public class IssueCommand implements CommandExecutor{
 						//Calling the SELECT query for status
 						sqlExec.statusQuery();
 						//Pulls each row of the database. Displays each row
+						if(!sqlExec.selectSQL.next()){
+							sender.sendMessage(ChatColor.GREEN + "You have no issues to display!");
+						}
+						else {
 						while (sqlExec.selectSQL.next()) {
 							int tempstatus = sqlExec.selectSQL.getInt("status");
 							if (tempstatus == 2){
@@ -65,7 +69,8 @@ public class IssueCommand implements CommandExecutor{
 							}
 						//Close database connection
 						sqlExec.dbClose();
-						} 	
+						}
+					}	
 					catch (SQLException e) {
 						e.printStackTrace();
 						}
@@ -125,9 +130,9 @@ public class IssueCommand implements CommandExecutor{
 							//If player does not have permission issuetracker.admin
 							sender.sendMessage(ChatColor.RED + "You do not have permissions to use this command!");
 						}
-					} //close hasPermission("issuetracker.admin")
-				} //Close if args[0].equalsIgnoreCase("status")
-			}
+					} 
+				}
+
 			//Triggers when /issue create args[x] is typed
 			else if(args[0].equalsIgnoreCase("create")){
 				 if(args.length >= 2){
@@ -143,7 +148,13 @@ public class IssueCommand implements CommandExecutor{
 						}
 					sender.sendMessage(ChatColor.GREEN + "Your issue has successfully been submitted. A moderator will review it as soon as possible. You may type '/issue status' to view the status of your issues.");
 					issueReason = "";
+					for(Player mod: plugin.getServer().getOnlinePlayers()) {    
+		                if(mod.hasPermission("issuetracker.admin")) {      
+		                 mod.sendMessage(ChatColor.GOLD + "[IssueTracker] " + ChatColor.GREEN + "A player submitted an issue. Type '/issue status' to view it.");
+		                	}
+		            	}	
 				 	}
+				 
 				 else {
 					 sender.sendMessage(ChatColor.RED + "Please type '/issue create <message>' to submit an issue.");
 				 }
@@ -174,7 +185,7 @@ public class IssueCommand implements CommandExecutor{
 							//Pulls each row of the database. Displays each row
 							sender.sendMessage(ChatColor.BLUE + "*******" + ChatColor.GREEN + "Your closed tickets" + ChatColor.BLUE + "*******");
 							while (sqlExec.selectSQL.next()) {
-								sender.sendMessage(ChatColor.BLUE + "Issue ID: " + ChatColor.GOLD + sqlExec.selectSQL.getString("issue_id") + ChatColor.BLUE + " - Status: " + ChatColor.GOLD + status + ChatColor.BLUE + " - " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
+								sender.sendMessage(ChatColor.BLUE + "Issue ID: " + ChatColor.GOLD + sqlExec.selectSQL.getString("issue_id") + ChatColor.BLUE + " - " + ChatColor.GOLD + sqlExec.selectSQL.getString("reason"));
 								}
 							//Close database connection
 								sqlExec.dbClose();
@@ -187,7 +198,7 @@ public class IssueCommand implements CommandExecutor{
 						sender.sendMessage(ChatColor.RED + "Please type '/issue view closed' to view your closed issues");
 					}
 				}
-				if(sender.hasPermission("issuetracker.admin")){
+				else if(sender.hasPermission("issuetracker.admin")){
 					if(args.length == 3){
 						if (args[1].equalsIgnoreCase("close") || args[1].equalsIgnoreCase("closed")){
 							try {				
@@ -206,9 +217,13 @@ public class IssueCommand implements CommandExecutor{
 								}
 						} //if args 1 = close/closed
 						else {
-							sender.sendMessage(ChatColor.RED + "You must enter a valid players name: /issue view closed <player>");
+							sender.sendMessage(ChatColor.RED + "Please enter a valid issue ID. Type '/issue view closed <player>");
 						}
 					}
+					else {
+						sender.sendMessage(ChatColor.RED + "You must enter a valid players name: /issue view closed <player>");
+					}
+					
 				}
 				else {
 					sender.sendMessage(ChatColor.RED + "You do not have permissions to use this!");
@@ -219,6 +234,7 @@ public class IssueCommand implements CommandExecutor{
 				sender.sendMessage("Please type /issue for help.");
 				}
 			}
+		}
 		return true;
 		}
 	}

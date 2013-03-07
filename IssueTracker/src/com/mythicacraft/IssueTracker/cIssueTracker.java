@@ -76,7 +76,7 @@ public class cIssueTracker extends JavaPlugin{
 	//Logger method
 	public void logMessage(String load){
 		PluginDescriptionFile pdfFile = this.getDescription();
-		this.logger.info(pdfFile.getName() + " v" + pdfFile.getVersion() + " is " + load);
+		this.logger.info("[" + pdfFile.getName() + "]" + " v" + pdfFile.getVersion() + " is " + load);
 		}
 	
 	//Pulls database information from the config
